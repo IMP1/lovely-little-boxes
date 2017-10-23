@@ -11,12 +11,12 @@ level.boxes = {
     {
         position = {3, 3},
         sides    = 13,
-        size     = 0.6
+        size     = 0.5
     },
     {
         position = {1, 3},
         sides    = 14,
-        size     = 0.6
+        size     = 0.7
     },
 }
 
@@ -27,6 +27,7 @@ level.triggers = {
         condition = function(scene)
             return true
         end,
+        -- oneTimeOnly = true,
         action = function(scene)
             scene.message = "If you get stuck, you can reset the level."
         end,
@@ -37,6 +38,7 @@ level.triggers = {
                 if b.position[1] == 1 and b.position[2] == 1 then return true end
             end
         end,
+        oneTimeOnly = true,
         action = function(scene)
             scene.message = "Remember, boxes have solid bottoms."
         end,

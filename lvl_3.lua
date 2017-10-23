@@ -1,23 +1,23 @@
 local level = {}
 
 level.tiles = {
-    {2, 1, 1, 0, 0},
-    {1, 0, 1, 0, 0},
-    {1, 1, 1, 1, 1},
+    {2, 1, 3, 0, 0},
+    {1, 1, 3, 0, 0},
+    {0, 0, 1, 1, 1},
     {0, 0, 1, 0, 1},
     {0, 0, 1, 1, 1},
 }
 level.boxes = {
     {
-        position = {3, 3},
-        sides    = 13,
-        size     = 0.6
-    },
-    {
-        position = {1, 3},
+        position = {4, 3},
         sides    = 14,
         size     = 0.6
     },
+    -- {
+    --     position = {1, 3},
+    --     sides    = 14,
+    --     size     = 0.6
+    -- },
 }
 
 level.startPosition = {3, 5}
@@ -27,8 +27,9 @@ level.triggers = {
         condition = function(scene)
             return true
         end,
+        oneTimeOnly = true,
         action = function(scene)
-            scene.message = "If you get stuck, you can reset the level."
+            scene.message = "Not all boxes have the same number of sides."
         end,
     },
     {
@@ -37,6 +38,7 @@ level.triggers = {
                 if b.position[1] == 1 and b.position[2] == 1 then return true end
             end
         end,
+        oneTimeOnly = true,
         action = function(scene)
             scene.message = "Remember, boxes have solid bottoms."
         end,
