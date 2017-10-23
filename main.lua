@@ -84,6 +84,5 @@ function love.draw()
 end
 
 function love.quit()
-    print("progress saved")
     saveProgress()
 end
