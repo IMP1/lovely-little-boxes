@@ -25,7 +25,7 @@ function Player:getPosition()
 end
 
 function Player:draw()
-    local i, j = self:getPosition()
+    local i, j = unpack(self.position)
     local x = (i - 1) * TILE_SIZE
     local y = (j - 1) * TILE_SIZE
     love.graphics.setColor(0, 0, 0)
