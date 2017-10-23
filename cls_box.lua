@@ -11,7 +11,7 @@ function Box.new(options)
     this.sides      = options.sides
     this.size       = options.size       or 1
     this.name       = options.name       or ""
-    this.lineColor  = options.color      or {0, 0, 0}
+    this.lineColor  = options.lineColor  or {0, 0, 0}
     this.bodyColor  = options.bodyColor  or {255, 255, 255, 128}
     this.textColor  = options.textColor  or {0, 0, 0}
     this.textOffset = options.textOffset or {0, 0}
