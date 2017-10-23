@@ -1,10 +1,11 @@
 local Base = require 'scn_base'
 
-local TILE_SIZE = require('cls_tile').tileSize
-
+local Tiles  = require 'cls_tile'
 local Box    = require 'cls_box'
 local Button = require 'gui_button'
 local Player = require 'cls_player'
+
+local TILE_SIZE = Tiles.tileSize
 
 local Scene = {}
 setmetatable(Scene, Base)
@@ -17,6 +18,7 @@ function Scene.new(levelName)
     return this
 end
 
+-- @Override (stub)
 function Scene:load()
     self.buttons = {
         Button.new({
@@ -74,6 +76,7 @@ function Scene:nextLevel(levelName)
     }
 end
 
+-- @Override (stub)
 function Scene:update(dt)
     if self.transition then
         self:updateTransition(dt)
@@ -112,14 +115,31 @@ function Scene:canMove(toX, toY, fromX, fromY)
     if not self.level.tiles[toY][toX] then 
         return false 
     end
-    if self.level.tiles[toY][toX] == 0 then
-        return false
-    end
     local dist = math.abs(toX - fromX) + math.abs(toY - fromY)
     if dist > 1 then 
         return false 
     end
+    local inBox = false
     for _, box in pairs(self.boxes) do
+        if box.position[1] == fromX and box.position[2] == fromY then
+            local sides = box.sides
+            if sides >= 8 then
+                if fromY == toY - 1 then inBox = true end
+                sides = sides - 8
+            end
+            if sides >= 4 then
+                if fromX == toX + 1 then inBox = true end
+                sides = sides - 4
+            end
+            if sides >= 2 then
+                if fromY == toY + 1 then inBox = true end
+                sides = sides - 2
+            end
+            if sides >= 1 then
+                if fromX == toX - 1 then inBox = true end
+                sides = sides - 1
+            end
+        end
         if box.position[1] == toX and box.position[2] == toY then
             local sides = box.sides
             if sides >= 8 then
@@ -145,11 +165,14 @@ function Scene:canMove(toX, toY, fromX, fromY)
             end
         end
     end
-    return true
+    return Tiles.isPassable(self.level.tiles[toY][toX], inBox)
+    -- return true
 end
 
 function Scene:move(fromX, fromY, toX, toY)
     self.player:setPosition(toX, toY)
+    local pushing = false
+    local pushing_size = 0
     for _, b in pairs(self.boxes) do
         if b.position[1] == fromX and b.position[2] == fromY then
             local pushing = false
@@ -171,12 +194,18 @@ function Scene:move(fromX, fromY, toX, toY)
                 sides = sides - 1
             end
             if pushing then
-                b.position = { toX, toY }
+                pushing_size = math.max(pushing_size, b.size)
             end
+        end
+    end
+    for _, b in pairs(self.boxes) do
+        if b.position[1] == fromX and b.position[2] == fromY and b.size <= pushing_size then
+            b.position = {toX, toY}
         end
     end
 end
 
+-- @Override (stub)
 function Scene:press(sx, sy)
     if self.needUpdate then return end
     local wx, wy = self.camera:toWorldPosition(sx, sy)
@@ -193,13 +222,14 @@ function Scene:press(sx, sy)
             button:press()
         end
     end
-    -- iterate through buttons and click 'em
 end
 
+-- @Override (stub)
 function Scene:drag(dx, dy)
     self.camera:move(-dx, -dy)
 end
 
+-- @Override (stub)
 function Scene:keypressed(key, isRepeat)
     if key == "r" then
         self.buttons[1]:press()
@@ -222,8 +252,13 @@ function Scene:keypressed(key, isRepeat)
     local wy = (j - 0.5) * TILE_SIZE
     local sx, sy = self.camera:toScreenPosition(wx, wy)
     self:press(sx, sy)
+
+    if key == "n" then
+        self:nextLevel()
+    end
 end
 
+-- @Override (stub)
 function Scene:draw()
     self:drawWorld()
     self:drawGui()
@@ -242,15 +277,15 @@ function Scene:drawMap()
     for j, row in pairs(self.level.tiles) do
         for i, tile in pairs(row) do
             if tile > 0 then
-                if tile == 3 then
-                    love.graphics.setColor(255, 128, 128)
+                if tile == Tiles.WATER then
+                    love.graphics.setColor(128, 128, 255)
                 else
                     love.graphics.setColor(255, 255, 255)
                 end
                 love.graphics.rectangle("fill", (i-1) * TILE_SIZE, (j-1) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 love.graphics.setColor(128, 128, 128)
                 love.graphics.rectangle("line", (i-1) * TILE_SIZE, (j-1) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                if tile == 2 then
+                if tile == Tiles.GOAL then
                     local x = (i - 0.5) * TILE_SIZE - Player.size / 2
                     local y = (j - 0.5) * TILE_SIZE - Player.size / 2
                     love.graphics.setColor(COLOURS.levelBackground)
