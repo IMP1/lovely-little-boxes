@@ -12,6 +12,7 @@ function Scene.new()
     return this
 end
 
+-- @Override
 function Scene:load(...)
     Game.load(self, ...)
     love.graphics.setBackgroundColor(COLOURS.titleBackground)
@@ -23,7 +24,7 @@ function Scene:canMove(toX, toY, fromX, fromY)
     if toX == 1 and toY == 2 then return false end -- @TODO: undisable this option
     if toX == 3 and toY == 2 then return false end -- @TODO: undisable this option
     return true
-    -- @TODO: this override can be removed when all title options work
+    -- @TODO: this entire override method can be removed when all title options work
 end
 
 -- @Override
@@ -35,6 +36,16 @@ end
 function Scene:drawGui()
     love.graphics.setFont(FONTS.title)
     love.graphics.printf("Little Boxes", 0, 0, love.graphics.getWidth(), "center")
+end
+
+
+-- @Override
+function Scene:keypressed(key, isRepeat)
+    Game.keypressed(self, key, isRepeat)
+    if key == "/" then
+        scene = require("scn_editor").new()
+        scene:load()
+    end
 end
 
 
