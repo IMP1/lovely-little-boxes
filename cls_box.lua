@@ -23,6 +23,24 @@ function Box:draw()
     self:drawName()
 end
 
+function Box:rotate(amount)
+    local clockwise_lookup     = {2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15}
+    local anticlockwise_lookup = {8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15}
+    if amount == 0 then 
+        return
+    end
+    local lookup
+    if amount < 0 then 
+        lookup = anticlockwise_lookup
+        amount = -amount
+    else
+        lookup = clockwise_lookup
+    end
+    for i = 1, amount do
+        self.sides = lookup[self.sides]
+    end
+end
+
 function Box:drawSides()
     local w = (BOX_SIZE / 2) * self.size
     local ox = (self.position[1] - 0.5) * TILE_SIZE
