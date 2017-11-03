@@ -15,11 +15,34 @@ function Box.new(options)
     this.bodyColor  = options.bodyColor  or {255, 255, 255, 128}
     this.textColor  = options.textColor  or {0, 0, 0}
     this.textOffset = options.textOffset or {0, 0}
+    this.goalPiece  = options.goalPiece  or false
+    if options.goalPiece then
+        local img = love.graphics.newImage("gfx_particle.png")
+        this.particleSystem = love.graphics.newParticleSystem(img, 16)
+        this.particleSystem:setAreaSpread("uniform", TILE_SIZE / 6, TILE_SIZE / 6)
+        this.particleSystem:setParticleLifetime(2, 5)
+        this.particleSystem:setEmissionRate(2)
+        this.particleSystem:setSizeVariation(1)
+        this.particleSystem:setLinearAcceleration(0, -5, 0, -10)
+        this.particleSystem:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
+    end
     return this
+end
+
+function Box:update(dt)
+    if self.particleSystem then
+        self.particleSystem:update(dt)
+    end
 end
 
 function Box:draw()
     self:drawSides()
+    if self.particleSystem then
+        local w = (BOX_SIZE / 2) * self.size
+        local ox = (self.position[1] - 0.5) * TILE_SIZE
+        local oy = (self.position[2] - 0.5) * TILE_SIZE
+        love.graphics.draw(self.particleSystem, ox, oy)
+    end
     self:drawName()
 end
 

@@ -1,13 +1,30 @@
 local level = {}
 
 level.tiles = {
-    {2, 1, 1, 0, 0},
-    {1, 0, 4, 0, 0},
+    {1, 4, 1, 4, 1},
+    {4, 0, 4, 0, 4},
     {4, 4, 4, 4, 4},
-    {0, 0, 4, 0, 1},
-    {0, 0, 1, 1, 1},
+    {4, 0, 4, 0, 4},
+    {1, 4, 1, 4, 1},
 }
 level.boxes = {
+    {
+        position  = {3, 4},
+        sides     = 12,
+        size      = 0.5,
+    },
+    {
+        position  = {4, 3},
+        sides     = 3,
+        size      = 0.7,
+        goalPiece = true,
+    },
+    {
+        position  = {5, 1},
+        sides     = 2,
+        size      = 0.5,
+        goalPiece = true,
+    },
 }
 
 level.startPosition = {3, 5}
@@ -36,25 +53,24 @@ level.triggers = {
     {
         condition = function(scene)
             local i, j = scene.player:getPosition()
+            local goalX, goalY = 0, 0
             for _, b in pairs(scene.boxes) do
-                if b.position[1] == i and b.position[2] == j then return false end
+                if b.goalPiece then
+                    if goalX == 0 or goalY == 0 then
+                        goalX = b.position[1]
+                        goalY = b.position[2]
+                    elseif goalX ~= b.position[1] or goalY ~= b.position[2] then
+                        return false
+                    end
+                end
             end
-            return i == 1 and j == 1
+            if goalX == 0 or goalY == 0 then return false end
+            return i == goalX and j == goalY
         end,
         action = function(scene)
             scene:nextLevel()
         end
     },
-    -- {
-    --     condition = function(scene)
-    --         local x1, y1 = unpack(scene.boxes[1].position)
-    --         local x2, y2 = unpack(scene.boxes[2].position)
-    --         return x1 == x2 and y1 == y2
-    --     end,
-    --     action = function(scene)
-    --         scene:nextLevel()
-    --     end
-    -- }
 }
 
 return level

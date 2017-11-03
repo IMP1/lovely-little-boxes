@@ -65,9 +65,9 @@ function Scene:createParticleSystems()
                 ps:setParticleLifetime(2, 5)
                 ps:setEmissionRate(5)
                 ps:setSizeVariation(1)
-                ps:setPosition(px, py)
                 ps:setLinearAcceleration(0, -5, 0, -10)
                 ps:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
+                ps:setPosition(px, py)
                 table.insert(self.particleSystems, ps)
             end
         end
@@ -117,6 +117,9 @@ function Scene:update(dt)
     for _, ps in pairs(self.particleSystems) do
         ps:update(dt)
     end
+    for _, box in pairs(self.boxes) do
+        box:update(dt)
+    end
     self.needUpdate = false
     -- update sliding
     if self.playerSliding then
@@ -128,7 +131,7 @@ function Scene:update(dt)
             if self:canMove(x, y, i, j) then
                 self:move(i, j, x, y)
                 self.playerSliding.timer = Tiles.slideSpeed
-                if not self.level.tiles[y][x] == Tiles.ICE then
+                if self.level.tiles[y][x] ~= Tiles.ICE then
                     self.playerSliding = nil
                     self.needUpdate = false
                 end
