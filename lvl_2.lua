@@ -11,7 +11,7 @@ level.boxes = {
     {
         position = {3, 3},
         sides    = 13,
-        size     = 0.6
+        size     = 0.4
     },
     {
         position = {1, 3},

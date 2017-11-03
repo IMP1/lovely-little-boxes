@@ -10,12 +10,12 @@ level.tiles = {
 level.boxes = {
     {
         position = {3, 3},
-        sides    = 13,
+        sides    = 12,
         size     = 0.5
     },
     {
-        position = {1, 3},
-        sides    = 14,
+        position = {4, 3},
+        sides    = 9,
         size     = 0.7
     },
 }
