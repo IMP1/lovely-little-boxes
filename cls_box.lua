@@ -74,7 +74,7 @@ function Box:drawName()
     local w = love.graphics.getFont():getWidth(self.name)
     love.graphics.setFont(FONTS.default)
     love.graphics.setColor(self.textColor)
-    love.graphics.print(self.name, ox + x - (w) / 2, oy + y - TILE_SIZE / 2 - love.graphics.getFont():getHeight())
+    love.graphics.print(self.name, ox + x - w / 2, oy + y - TILE_SIZE / 2 - love.graphics.getFont():getHeight())
 end
 
 
