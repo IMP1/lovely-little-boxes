@@ -211,6 +211,25 @@ function Scene:createBoxButtons()
         text = "]",
     })
     table.insert(self.box_buttons, button)
+
+    button = Button.new({
+        position = {4 + TILE_SIZE * 3, 4 + TILE_SIZE * 2},
+        size     = {TILE_SIZE / 2, TILE_SIZE / 2},
+        onclick  = function(btn)
+            local index = 0
+            for i, box in ipairs(self.level.boxes) do
+                if box == self.selected_box then
+                    index = i
+                end
+            end
+            if index > 0 then
+                table.remove(self.level.boxes, index)
+                self.selected_box = nil
+            end
+        end,
+        text     = "X",
+    })
+    table.insert(self.box_buttons, button)
 end
 
 function Scene:blankLevel()
@@ -244,8 +263,8 @@ function Scene:saveLevel(levelName)
         file:write("    {")
         file:write(string.format("        position = {%d, %d},\n", box.position[1], box.position[2]))
         file:write(string.format("        sides    = %d,\n",       box.sides))
-        file:write(string.format("        size     = %d,\n",       box.size))
-        file:write("},\n")
+        file:write(string.format("        size     = %.2f,\n",     box.size))
+        file:write("    },\n")
     end
     file:write("}\n\n")
 
@@ -266,6 +285,7 @@ function Scene:playTest()
         size     = { 48, 48 },
         onclick  = function()
             self.testScene = nil
+            love.filesystem.remove("lvl__playtest.lua")
         end,
         text = "Back to Editor"
     })
@@ -297,7 +317,6 @@ function Scene:press(sx, sy)
     local wx, wy = self.camera:toWorldPosition(sx, sy)
     local i = math.floor(wx / TILE_SIZE) + 1
     local j = math.floor(wy / TILE_SIZE) + 1
-    -- @TODO: handle inputs.
     if self.current_block and self.level.tiles[j] and self.level.tiles[j][i] then
         local box = nil
         for _, b in pairs(self.level.boxes) do
