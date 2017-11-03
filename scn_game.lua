@@ -36,18 +36,42 @@ function Scene:load()
 end
 
 function Scene:loadLevel()
-    self.level = love.filesystem.load("lvl_" .. self.levelName .. ".lua")()
-    self.boxes = {}
+    self.message       = ""
+    self.player        = Player.new()
+    self.timer         = 0
+    self.needUpdate    = false
+    self.playerSliding = nil
+    self.transition    = nil
+    self.lastInput     = nil
+    self.level         = love.filesystem.load("lvl_" .. self.levelName .. ".lua")()
+    self.boxes         = {}
     for _, b in pairs(self.level.boxes) do
         table.insert(self.boxes, Box.new(b))
     end
-    self.message = ""
-    self.player = Player.new()
-    self.timer = 0
-    self.needUpdate = false
-    self.transition = nil
-    self.lastInput = nil
     self:resetPlayer()
+    self:createParticleSystems()
+end
+
+function Scene:createParticleSystems()
+    local img = love.graphics.newImage("gfx_particle.png")
+    self.particleSystems = {}
+    for j, row in pairs(self.level.tiles) do
+        for i, tile in pairs(row) do
+            if tile == Tiles.GOAL then
+                local px = (i - 0.5) * TILE_SIZE
+                local py = (j - 0.5) * TILE_SIZE
+                local ps = love.graphics.newParticleSystem(img, 64)
+                ps:setAreaSpread("uniform", TILE_SIZE / 6, TILE_SIZE / 6)
+                ps:setParticleLifetime(2, 5)
+                ps:setEmissionRate(5)
+                ps:setSizeVariation(1)
+                ps:setPosition(px, py)
+                ps:setLinearAcceleration(0, -5, 0, -10)
+                ps:setColors(255, 255, 255, 255, 255, 255, 255, 0) -- Fade to transparency.
+                table.insert(self.particleSystems, ps)
+            end
+        end
+    end
 end
 
 function Scene:resetPlayer()
@@ -90,8 +114,32 @@ function Scene:update(dt)
         end
     end
     -- update bobbing
-    -- update pretty animations
+    for _, ps in pairs(self.particleSystems) do
+        ps:update(dt)
+    end
     self.needUpdate = false
+    -- update sliding
+    if self.playerSliding then
+        self.needUpdate = true
+        if self.playerSliding.timer <= 0 then
+            local i, j = unpack(self.player.position)
+            local x = i + self.playerSliding.dx
+            local y = j + self.playerSliding.dy
+            if self:canMove(x, y, i, j) then
+                self:move(i, j, x, y)
+                self.playerSliding.timer = Tiles.slideSpeed
+                if not self.level.tiles[y][x] == Tiles.ICE then
+                    self.playerSliding = nil
+                    self.needUpdate = false
+                end
+            else
+                self.playerSliding = nil    
+                self.needUpdate = false
+            end
+        else
+            self.playerSliding.timer = self.playerSliding.timer - dt
+        end
+    end
 end
 
 function Scene:updateTransition(dt)
@@ -224,6 +272,15 @@ function Scene:press(sx, sy)
     local oldI, oldJ = self.player:getPosition()
     if self:canMove(i, j, oldI, oldJ) then
         self:move(oldI, oldJ, i, j)
+        if self.level.tiles[j][i] == Tiles.ICE then
+            local dx = i - oldI
+            local dy = j - oldJ
+            self.playerSliding = {
+                dx    = dx, 
+                dy    = dy, 
+                timer = Tiles.slideSpeed,
+            }
+        end
     end
     self.lastInput = { i, j }
     self.needUpdate = true
@@ -289,6 +346,8 @@ function Scene:drawMap()
             if tile > 0 then
                 if tile == Tiles.WATER then
                     love.graphics.setColor(128, 128, 255)
+                elseif tile == Tiles.ICE then
+                    love.graphics.setColor(224, 224, 255)
                 else
                     love.graphics.setColor(255, 255, 255)
                 end
@@ -304,6 +363,9 @@ function Scene:drawMap()
             end
         end
     end
+    for _, ps in pairs(self.particleSystems) do
+        love.graphics.draw(ps, 0, 0)
+    end
 end
 
 function Scene:drawBoxes()
@@ -313,7 +375,14 @@ function Scene:drawBoxes()
 end
 
 function Scene:drawPlayer()
-    self.player:draw()
+    local ox, oy = 0, 0
+    if self.playerSliding then
+        local n = Tiles.slideSpeed
+        local i = self.playerSliding.timer
+        ox = ox - self.playerSliding.dx * TILE_SIZE * (i / n)
+        oy = oy - self.playerSliding.dy * TILE_SIZE * (i / n)
+    end
+    self.player:draw(ox, oy)
 end
 
 function Scene:drawGui()

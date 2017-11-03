@@ -1,8 +1,9 @@
-local TILE_SIZE = 64
+local TILE_SIZE   = 64
+local SLIDE_SPEED = 0.1
 
 local tiles = {
     GROUND = 1, -- default
-    GOAL   = 2, -- where the player needs to get
+    GOAL   = 2, -- where the player needs to get for some levels
     WATER  = 3, -- player cannot pass unless in box
     ICE    = 4, -- player (and any boxes) keep moving until they cannot
     TUNNEL = 5, -- player can only pass if not in a box
@@ -25,5 +26,6 @@ function tiles.isPassable(tile, isInBox)
 end
 
 tiles.tileSize = TILE_SIZE
+tiles.slideSpeed = SLIDE_SPEED
 
 return tiles

@@ -24,10 +24,10 @@ function Player:getPosition()
     return self.position[1], self.position[2]
 end
 
-function Player:draw()
+function Player:draw(ox, oy)
     local i, j = unpack(self.position)
-    local x = (i - 1) * TILE_SIZE
-    local y = (j - 1) * TILE_SIZE
+    local x = (i - 1) * TILE_SIZE + (ox or 0)
+    local y = (j - 1) * TILE_SIZE + (oy or 0)
     love.graphics.setColor(0, 0, 0)
     love.graphics.rectangle("fill", x + TILE_SIZE / 3, y + TILE_SIZE / 3, TILE_SIZE / 3, TILE_SIZE / 3, 4, 4)
 end
