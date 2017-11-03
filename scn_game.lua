@@ -120,23 +120,36 @@ function Scene:canMove(toX, toY, fromX, fromY)
         return false 
     end
     local inBox = false
+    local largestBoxIn = 0
     for _, box in pairs(self.boxes) do
         if box.position[1] == fromX and box.position[2] == fromY then
             local sides = box.sides
             if sides >= 8 then
-                if fromY == toY - 1 then inBox = true end
+                if fromY == toY + 1 then 
+                    inBox = true 
+                    largestBoxIn = math.max(largestBoxIn, box.size)
+                end
                 sides = sides - 8
             end
             if sides >= 4 then
-                if fromX == toX + 1 then inBox = true end
+                if fromX == toX + 1 then 
+                    inBox = true 
+                    largestBoxIn = math.max(largestBoxIn, box.size)
+                end
                 sides = sides - 4
             end
             if sides >= 2 then
-                if fromY == toY + 1 then inBox = true end
+                if fromY == toY - 1 then 
+                    inBox = true 
+                    largestBoxIn = math.max(largestBoxIn, box.size)
+                end
                 sides = sides - 2
             end
             if sides >= 1 then
-                if fromX == toX - 1 then inBox = true end
+                if fromX == toX - 1 then 
+                    inBox = true 
+                    largestBoxIn = math.max(largestBoxIn, box.size)
+                end
                 sides = sides - 1
             end
         end
@@ -158,11 +171,8 @@ function Scene:canMove(toX, toY, fromX, fromY)
                 if fromX == toX + 1 then return false end
                 sides = sides - 1
             end
-            for _, b in pairs(self.boxes) do
-                if b ~= box and b.position[1] == fromX and b.position[2] == fromY then
-                    if box.size <= b.size then return false end
-                end
-            end
+            if box.size <= largestBoxIn then return false end
+            inBox = true
         end
     end
     return Tiles.isPassable(self.level.tiles[toY][toX], inBox)
