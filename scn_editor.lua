@@ -84,6 +84,15 @@ function Scene:createButtons()
         text     = "Play",
     })
     table.insert(self.buttons, button)
+    local button = Button.new({
+        position = {360 + 136, 4},
+        size     = {128, 32},
+        onclick  = function()
+            scene = require("scn_title").new()
+        end,
+        text     = "Back",
+    })
+    table.insert(self.buttons, button)
 end
 
 function Scene:createTileButtons(tile_types, btn_draw)
@@ -289,6 +298,7 @@ function Scene:playTest()
         end,
         text = "Back to Editor"
     })
+    table.remove(self.testScene.buttons, 2)
     table.insert(self.testScene.buttons, escape_button)
 end
 

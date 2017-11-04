@@ -28,7 +28,15 @@ function Scene:load()
                 self:loadLevel()
             end,
             text = "Reset"
-        })
+        }),
+        Button.new({
+            position = { 32, 32 },
+            size     = { 48, 48 },
+            onclick  = function()
+                self:nextLevel("")
+            end,
+            text = "Back"
+        }),
     }
     love.graphics.setBackgroundColor(COLOURS.levelBackground)
     self:loadLevel()
@@ -304,6 +312,9 @@ function Scene:keypressed(key, isRepeat)
     if key == "r" then
         self.buttons[1]:press()
     end
+    if key == "escape" then
+        self.buttons[2]:press()
+    end 
 
     local i, j = self.player:getPosition()
     if key == "up" or key == "w" then
@@ -338,6 +349,7 @@ end
 function Scene:drawWorld()
     self.camera:set()
     self:drawMap()
+    self:drawMapEffects()
     self:drawBoxes()
     self:drawPlayer()
     self.camera:unset()
@@ -366,6 +378,9 @@ function Scene:drawMap()
             end
         end
     end
+end
+
+function Scene:drawMapEffects()
     for _, ps in pairs(self.particleSystems) do
         love.graphics.draw(ps, 0, 0)
     end
