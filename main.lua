@@ -10,14 +10,10 @@ FONTS = {
 local PROGRESS_FILENAME = "progress.lb"
 local PRESS_DRAG_LENIENCY = 2
 
-progress = {
-    levelUpTo = 1,
-}
+progress = require 'progress'
 
 local function loadProgress()
-    if love.filesystem.exists(PROGRESS_FILENAME) then
-        progress = love.filesystem.load(PROGRESS_FILENAME)()
-    end
+    progress.load()
 end
 
 local function saveProgress()
@@ -84,5 +80,5 @@ function love.draw()
 end
 
 function love.quit()
-    saveProgress()
+    progress.save()
 end
