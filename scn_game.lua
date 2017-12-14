@@ -11,9 +11,10 @@ local Scene = {}
 setmetatable(Scene, Base)
 Scene.__index = Scene
 
-function Scene.new(levelName)
+function Scene.new(levelPack, levelName)
     local this = {}
     setmetatable(this, Scene)
+    this.levelPack = levelPack
     this.levelName = levelName
     return this
 end
@@ -33,7 +34,7 @@ function Scene:load()
             position = { 32, 32 },
             size     = { 48, 48 },
             onclick  = function()
-                self:nextLevel("")
+                self:gotoLevel("", "")
             end,
             text = "Back"
         }),
@@ -51,13 +52,17 @@ function Scene:loadLevel()
     self.playerSliding = nil
     self.transition    = nil
     self.lastInput     = nil
-    self.level         = love.filesystem.load("lvl_" .. self.levelName .. ".lua")()
+    self.level         = love.filesystem.load("levels/" .. self.levelPack .. "/" .. self.levelName .. ".lua")()
+    self:resetBoxes()
+    self:resetPlayer()
+    self:createParticleSystems()
+end
+
+function Scene:resetBoxes()
     self.boxes         = {}
     for _, b in pairs(self.level.boxes) do
         table.insert(self.boxes, Box.new(b))
     end
-    self:resetPlayer()
-    self:createParticleSystems()
 end
 
 function Scene:createParticleSystems()
@@ -97,15 +102,29 @@ function Scene:createCamera()
     self.camera:setBounds(-minX, -minY, 0, 0)
 end
 
-function Scene:nextLevel(levelName)
-    levelName = levelName or tostring(self.levelName + 1)
-    if not love.filesystem.exists("lvl_" .. levelName .. ".lua") then
-        levelName = nil
+function Scene:gotoLevel(levelPack, levelName)
+    local nextLevel = {
+        pack = levelPack,
+        level = levelName,
+    }
+    if not love.filesystem.exists("levels/" .. levelPack .. "/" .. levelName .. ".lua") then
+        nextLevel = nil
     end
     self.transition = {
-        nextLevel = levelName,
+        nextLevel = nextLevel,
         timer     = 0.1,
     }
+end
+
+function Scene:nextLevel(nextLevel)
+    if not nextLevel then 
+        nextLevel = progress.nextLevel(self.levelPack, self.levelName)
+    end
+    if nextLevel then
+        self:gotoLevel(self.levelPack, nextLevel)
+    else
+        self:gotoLevel("", "")
+    end
 end
 
 -- @Override (stub)
@@ -157,8 +176,7 @@ function Scene:updateTransition(dt)
     self.transition.timer = self.transition.timer - dt
     if self.transition.timer <= 0 then
         if self.transition.nextLevel then
-            scene = Scene.new(self.transition.nextLevel)
-            scene:load()
+            scene = Scene.new(self.transition.nextLevel.pack, self.transition.nextLevel.level)
         else
             -- @TODO: be a bit more ceremonious about this
             scene = require("scn_title").new()

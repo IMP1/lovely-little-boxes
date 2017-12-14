@@ -1,12 +1,12 @@
 local Game = require 'scn_game'
-local Button = require("gui_button") -- import button
+local Button = require 'gui_button'
 
 local Scene = {}
 setmetatable(Scene, Game)
 Scene.__index = Scene
 
 function Scene.new()
-    local this = Game.new("title")
+    local this = Game.new("core", "title")
     this:load()
     setmetatable(this, Scene)
     return this
@@ -21,7 +21,6 @@ end
 -- @Override
 function Scene:canMove(toX, toY, fromX, fromY)
     if not Game.canMove(self, toX, toY, fromX, fromY) then return false end
-    if toX == 1 and toY == 2 then return false end -- @TODO: undisable this option
     if toX == 3 and toY == 2 then return false end -- @TODO: undisable this option
     return true
     -- @TODO: this entire override method can be removed when all title options work
