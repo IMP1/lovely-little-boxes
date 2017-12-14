@@ -250,6 +250,40 @@ function Scene:blankLevel()
     return level
 end
 
+function Scene:levelString()
+    local str = "local level = {}\n\n"
+
+    str = str .. "level.tiles = {\n"
+    for j, row in pairs(level.tiles) do
+        str = str .. "    {"
+        for i, tile in pairs(row) do
+            str = str .. tile .. ", "
+        end
+        str = str .. "},\n"
+    end
+    str = str .. "}\n\n"
+
+    str = str .. "level.bodes = {\n"
+    for _, box in pairs(level.boxes) do
+        str = str .. "    {"
+        str = str .. string.format("        position = {%d, %d},\n", box.position[1], box.position[2])
+        str = str .. string.format("        sides    = %d,\n",       box.sides)
+        str = str .. string.format("        size     = %.2f,\n",     box.size)
+        str = str .. "    },\n"
+    end
+    str = str .. "}\n\n"
+
+    str = str .. string.format("level.startPosition = {%d, %d}\n\n", level.startPosition[1], level.startPosition[2]))
+
+    str = str .. "level.triggers = {}\n\n"
+
+    return str .. "return level\n"
+end
+
+function Scene:printLevel()
+    print(self:levelString())
+end
+
 function Scene:saveLevel(levelName)
     local level = self.level
     local file = love.filesystem.newFile("lvl_" .. levelName .. ".lua")
