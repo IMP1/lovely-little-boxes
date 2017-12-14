@@ -29,7 +29,7 @@ level.triggers = {
         end,
         oneTimeOnly = true,
         action = function(scene)
-            scene.message = "Not all boxes have the same number of sides."
+            scene.message = "Boxes can float, but you cannot."
         end,
     },
     {

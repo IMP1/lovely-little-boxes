@@ -21,7 +21,7 @@ level.triggers = {
     {
         condition = function(scene)
             local i, j = scene.player:getPosition()
-            return j >= 3 -- and scene.timer > 2
+            return j >= 3 and scene.timer > 2 and not scene.lastInput
         end,
         oneTimeOnly = true,
         action = function(scene)

@@ -49,19 +49,28 @@ level.triggers = {
         end,
         oneTimeOnly = true,
         action = function(scene)
-            scene:nextLevel(progress.levelUpTo)
-            -- scene = require("scn_game").new(progress.levelUpTo)
-            -- scene:load()
+            scene:gotoLevel("test", "1")
         end,
     },
     {
         condition = function(scene)
             local i, j = scene.player:getPosition()
-            return j == 3 and i == 2
+            return j == 2 and i == 1
         end,
         oneTimeOnly = true,
         action = function()
-            love.event.quit()
+            scene:gotoLevel("core", "level_select")
+        end,
+    },
+    {
+        condition = function(scene)
+            if scene.quitTimer then return false end
+            local i, j = scene.player:getPosition()
+            return j == 3 and i == 2
+        end,
+        oneTimeOnly = true,
+        action = function(scene)
+            love.event.quit() -- @TODO: have a SceneGame:quit() ?  this should have some transition...
         end,
     },
 }

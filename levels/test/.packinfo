@@ -1,0 +1,12 @@
+return {
+    name   = "Test",
+    author = "HBT",
+    order = {
+        "1",
+        "2",
+        "three",
+        "4",
+        "five",
+    },
+
+}
