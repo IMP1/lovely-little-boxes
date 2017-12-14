@@ -7,9 +7,12 @@ local lastLevelName  = nil
 local levelCompletion = {}
 local packCompletion = {}
 
-local packs = {
-    
-}
+local packs = {}
+
+-- @TODO: have a way of updating this - setting whether a level has been completed or not. 
+--        Maybe also stats about the level's completion (time, moves, etc.)
+
+-- @TODO: have this saved somewhere and loaded.
 
 local function loadProgress()
     for _, filename in pairs(love.filesystem.getDirectoryItems("levels")) do
