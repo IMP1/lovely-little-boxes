@@ -56,7 +56,6 @@ local function saveProgress()
         f:write("        [\"" .. pack .. "\"] = {\n")
         for level, completed in pairs(levels) do 
             f:write("            [\"" .. level .. "\"] = " .. tostring(completed) .. ",\n")
-            print(pack, level, completed)
         end
         f:write("        },\n")
     end

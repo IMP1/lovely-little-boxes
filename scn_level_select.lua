@@ -51,6 +51,10 @@ function Scene:load(...)
                     position = {i * 96 + 32, j * 64 + 32},
                     size     = {64, 32},
                     onclick = function()
+                        local packName = filename
+                        local levelName = level
+                        scene = require('scn_game').new(packName, levelName)
+                        scene:load()
                     end,
                     text = level,
                 })
