@@ -26,6 +26,10 @@ end
 
 -- @Override (stub)
 function Scene:load(...)
+
+    -- @TODO: only load levels that are available? or not? 
+    --        this would add complexity to the .packinfo (and progress) files.
+
     self.buttons = {
         Button.new({
             position = { 32, 32 },
