@@ -7,8 +7,8 @@ Scene.__index = Scene
 
 function Scene.new()
     local this = Game.new("core", "title")
-    this:load()
     setmetatable(this, Scene)
+    -- this:load()
     return this
 end
 

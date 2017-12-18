@@ -65,4 +65,6 @@ level.triggers = {
     },
 }
 
+level.ignore = true
+
 return level

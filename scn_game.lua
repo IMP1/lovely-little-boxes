@@ -42,6 +42,9 @@ function Scene:load()
     love.graphics.setBackgroundColor(COLOURS.levelBackground)
     self:loadLevel()
     self:createCamera()
+    if not self.level.ignore then
+        progress.begin(self.levelPack, self.levelName)
+    end
 end
 
 function Scene:loadLevel()
@@ -117,6 +120,9 @@ function Scene:gotoLevel(levelPack, levelName)
 end
 
 function Scene:nextLevel(nextLevel)
+    if not self.level.ignore then
+        progress.begin(self.levelPack, self.levelName)
+    end
     if not nextLevel then 
         nextLevel = progress.nextLevel(self.levelPack, self.levelName)
     end

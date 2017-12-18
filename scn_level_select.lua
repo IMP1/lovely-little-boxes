@@ -1,64 +1,125 @@
-local Game = require 'scn_game'
+local Base = require 'scn_base'
 local Button = require 'gui_button'
 
+local TILES_ACROSS = 3
+
 local Scene = {}
-setmetatable(Scene, Game)
+setmetatable(Scene, Base)
 Scene.__index = Scene
 
 function Scene.new()
-    local this = Game.new("core", "level_select")
+    local this = Base.new("level select")
     setmetatable(this, Scene)
     this:load()
     return this
 end
 
+local function quit()
+    scene = require('scn_title').new()
+    scene:load()
+end
+
+local function back()
+    scene.levels = nil
+    scene.buttons[1].action = quit
+end
+
 -- @Override (stub)
 function Scene:load(...)
+    self.buttons = {
+        Button.new({
+            position = { 32, 32 },
+            size     = { 48, 48 },
+            onclick  = quit,
+            text = "Back"
+        }),
+    }
     love.graphics.setBackgroundColor(COLOURS.titleBackground)
-    self.selectedPack = nil
-    self.selectedLevel = nil
     self.packs = {}
-    for _, filename in pairs(love.filesystem.getDirectoryItems("levels")) do
+    self.levels = nil
+    self.packLevels = {}
+    for packIndex, filename in pairs(love.filesystem.getDirectoryItems("levels")) do
         local packInfo = love.filesystem.load("levels/" .. filename .. "/.packinfo")
         if packInfo then
             packInfo = packInfo()
-            local pack = {
-                name = packInfo.name,
-                levels = packInfo.order,
-            }
-            table.insert(self.packs, pack)
+
+            self.packLevels[filename] = {}
+            for levelIndex, level in ipairs(packInfo.order) do
+                local j = math.floor((levelIndex - 1) / TILES_ACROSS) + 1
+                local i = (levelIndex - 1) % TILES_ACROSS + 1
+                local levelButton = Button.new({
+                    position = {i * 96 + 32, j * 64 + 32},
+                    size     = {64, 32},
+                    onclick = function()
+                    end,
+                    text = level,
+                })
+                table.insert(self.packLevels[filename], levelButton)
+            end
+
+            local j = math.floor((packIndex - 1) / TILES_ACROSS) + 1
+            local i = (packIndex - 1) % TILES_ACROSS + 1
+            local packButton = Button.new({
+                position = {i * 96 - 64, j * 96},
+                size     = {64, 64},
+                onclick  = function()
+                    local packName = filename
+                    self.levels = self.packLevels[packName]
+                    self.buttons[1].action = back
+                end,
+                text = packInfo.name .. "\n" .. #packInfo.order,
+            })
+            table.insert(self.packs, packButton)
         end
     end
-    self.loadLevels()
+    print(#self.packs)
 end
 
 function Scene:loadLevels()
-    print(#self.packs)
-    self.level.tiles = {}
-    for _, pack in pairs(self.packs) do
-        print(#pack.levels)
-    end
+
 end
 
 -- @Override (stub)
 function Scene:press(sx, sy)
-    i = math.floor((sx + 32) / 96)
-    j = math.floor((sy + 32) / 96)
+    if self.levels then
+        for _, button in pairs(self.levels) do
+            if button:isMouseOver(sx, sy) then
+                button:press()
+            end
+        end
+    else
+        for _, button in pairs(self.packs) do
+            if button:isMouseOver(sx, sy) then
+                button:press()
+            end
+        end
+    end
+    for _, button in pairs(self.buttons) do
+        if button:isMouseOver(sx, sy) then
+            button:press()
+        end
+    end
+end
+
+function Scene:keypressed(key)
+    if key == "escape" then
+        self.buttons[1]:press()
+    end 
 end
 
 -- @Override (stub)
 function Scene:draw()
-    if self.selectedPack then
-
-    else
-        for i, pack in pairs(self.packs) do
-            love.graphics.rectangle("line", i * 96 - 32, 64, 64, 64)
-            love.graphics.printf(pack.name, i * 96 - 32, 64, 64, "center")
-            love.graphics.printf(#pack.levels, i * 96 - 32, 64 + 32, 64, "center")
-        end
+    for _, button in pairs(self.buttons) do
+        button:draw()
     end
-    if i or j then
-        love.graphics.print(i .. ", " .. j, 0, 0)
+    if self.levels then
+        for _, button in pairs(self.levels) do
+            button:draw()
+        end
+    else
+        for _, button in pairs(self.packs) do
+            button:draw()
+        end
     end
 end
 

@@ -49,7 +49,7 @@ level.triggers = {
         end,
         oneTimeOnly = true,
         action = function(scene)
-            scene:gotoLevel("test", "1")
+            scene:gotoLevel(progress.continue())
         end,
     },
     {
@@ -59,7 +59,9 @@ level.triggers = {
         end,
         oneTimeOnly = true,
         action = function()
-            scene:gotoLevel("core", "level_select")
+            scene = require('scn_level_select').new()
+            scene:load()
+            -- scene:gotoLevel("core", "level_select")
         end,
     },
     {
@@ -74,5 +76,7 @@ level.triggers = {
         end,
     },
 }
+
+level.ignore = true
 
 return level

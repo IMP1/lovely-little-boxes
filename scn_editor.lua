@@ -89,6 +89,7 @@ function Scene:createButtons()
         size     = {128, 32},
         onclick  = function()
             scene = require("scn_title").new()
+            scene:load()
         end,
         text     = "Back",
     })
