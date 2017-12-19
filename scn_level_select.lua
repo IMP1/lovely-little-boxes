@@ -48,7 +48,7 @@ function Scene:load(...)
             packInfo = packInfo()
 
             self.packLevels[filename] = {}
-            for levelIndex, level in ipairs(packInfo.order) do
+            for levelIndex, level in ipairs(progress.available(filename)) do
                 local j = math.floor((levelIndex - 1) / TILES_ACROSS) + 1
                 local i = (levelIndex - 1) % TILES_ACROSS + 1
                 local levelButton = Button.new({

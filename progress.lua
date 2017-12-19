@@ -12,9 +12,17 @@ local function loadProgress()
         local packInfo = love.filesystem.load("levels/" .. filename .. "/.packinfo")
         if packInfo then
             packInfo = packInfo()
+            local levels = {}
+            for i, levelName in ipairs(packInfo.order) do
+                levels[levelName] = {
+                    name = levelName,
+                    available = false,
+                }
+            end
             local pack = {
-                name = packInfo.name,
-                levels = packInfo.order,
+                name   = packInfo.name,
+                order  = packInfo.order,
+                levels = levels,
             }
             packs[filename] = pack
             packCompletion[filename] = {}
@@ -38,6 +46,9 @@ local function loadProgress()
         if packCompletion[pack] then
             for level, completed in pairs(levels) do
                 packCompletion[pack][level] = completed
+                if completed then
+                    packs[pack].levels[level].available = true
+                end
             end
         end
     end
@@ -69,14 +80,14 @@ local function saveProgress()
     f:close()
 end
 
-local function nextLevel(packName, currentLevel)
+local function nextLevel(packName, currentLevelName)
     pack = packs[packName]
 
     local useNext = false
     local nextLevelName = nil
 
-    for i, level in pairs(pack.levels) do
-        if nextLevelName == nil and level == currentLevel then
+    for i, level in pairs(pack.order) do
+        if nextLevelName == nil and level == currentLevelName then
             useNext = true
         elseif nextLevelName == nil and useNext then
             nextLevelName = level
@@ -84,6 +95,16 @@ local function nextLevel(packName, currentLevel)
     end
 
     return nextLevelName
+end
+
+local function availableLevels(packName)
+    local levels = {}
+    for _, level in pairs(packs[packName].levels) do
+        if level.available then
+            table.insert(levels, level.name)
+        end
+    end
+    return levels
 end
 
 local function completeLevel(packName, levelName, stats)
@@ -94,12 +115,13 @@ end
 local function beginLevel(packName, levelName)
     lastLevelPack = packName
     lastLevelName = levelName
+    packs[packName].levels[levelName].available = true
 end
 
 local function lastLevel()
     if (not lastLevelPack) or (not lastLevelName) then
         for packName, pack in pairs(packs) do
-            return packName, pack.levels[1]
+            return packName, pack.levels[1].name
         end
     end
     return lastLevelPack, lastLevelName
@@ -112,6 +134,8 @@ local progress = {
     complete  = completeLevel,
     begin     = beginLevel,
     continue  = lastLevel,
+    available = availableLevels,
+    packs     = packs,
 }
 
 return progress
